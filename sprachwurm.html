@@ -488,7 +488,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 import {
-  getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged
+  getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, setDoc
@@ -512,7 +512,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-window.__sprachwurmAuth = { auth, db, doc, getDoc, setDoc, provider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged };
+window.__sprachwurmAuth = { auth, db, doc, getDoc, setDoc, provider, signInWithPopup, signOut, onAuthStateChanged };
 </script>
 
 <script type="module">
@@ -771,9 +771,9 @@ window.__sprachwurmAuth = { auth, db, doc, getDoc, setDoc, provider, signInWithR
     var errorEl = document.getElementById("loginError");
     errorEl.textContent = "";
     try{
-      await fb.signInWithRedirect(fb.auth, fb.provider);
+      await fb.signInWithPopup(fb.auth, fb.provider);
     }catch(e){
-      errorEl.textContent = "Anmeldung fehlgeschlagen. Bitte nochmal versuchen.";
+      errorEl.textContent = "Anmeldung fehlgeschlagen: " + (e && e.code ? e.code : "unbekannter Fehler");
       console.error(e);
     }
   });
@@ -784,12 +784,6 @@ window.__sprachwurmAuth = { auth, db, doc, getDoc, setDoc, provider, signInWithR
   });
 
   renderChips();
-
-  window.__sprachwurmAuth.getRedirectResult(window.__sprachwurmAuth.auth).catch(function(e){
-    var errorEl = document.getElementById("loginError");
-    if(errorEl) errorEl.textContent = "Anmeldung fehlgeschlagen: " + (e && e.code ? e.code : "unbekannter Fehler");
-    console.error(e);
-  });
 
   window.__sprachwurmAuth.onAuthStateChanged(window.__sprachwurmAuth.auth, async function(user){
     if(user){
