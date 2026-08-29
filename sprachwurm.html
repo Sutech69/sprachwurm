@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Sprachwurm – Englisch lernen</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg: #1F3A34;
+    --bg-soft: #16302B;
+    --card: #F7F3E8;
+    --card-edge: #E4DCC6;
+    --ink: #2B2118;
+    --ink-soft: #6B6154;
+    --chalk: #F5F2E9;
+    --chalk-soft: #B9CBC4;
+    --accent: #E3A008;
+    --accent-ink: #4A3300;
+    --good: #6B9080;
+    --good-ink: #F5F2E9;
+    --bad: #D66853;
+    --bad-ink: #F5F2E9;
+    --radius: 20px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(255,255,255,0.03), transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(255,255,255,0.02), transparent 45%);
+    color: var(--chalk);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display:flex;
+    justify-content:center;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
+  .app{
+    width:100%;
+    max-width: 460px;
+    min-height: 100vh;
+    padding: 20px 18px 32px;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .topbar{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    margin-bottom: 18px;
+  }
+  .brand{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .brand-name{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 24px;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  .brand-name span{ color: var(--accent); }
+  .brand-tag{
+    font-size:12.5px;
+    color: var(--chalk-soft);
+    margin:0;
+  }
+  .stats{
+    display:flex;
+    gap:10px;
+  }
+  .stat-pill{
+    background: rgba(245,242,233,0.08);
+    border: 1px solid rgba(245,242,233,0.14);
+    border-radius: 999px;
+    padding: 6px 11px;
+    font-size: 12.5px;
+    font-weight:600;
+    color: var(--chalk);
+    display:flex;
+    align-items:center;
+    gap:5px;
+    white-space:nowrap;
+  }
+
+  .tabs{
+    display:flex;
+    gap:6px;
+    background: rgba(0,0,0,0.15);
+    border-radius: 14px;
+    padding: 4px;
+    margin-bottom: 20px;
+  }
+  .tab{
+    flex:1;
+    border:none;
+    background:transparent;
+    color: var(--chalk-soft);
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size: 13.5px;
+    padding: 10px 4px;
+    border-radius: 10px;
+    cursor:pointer;
+  }
+  .tab.active{
+    background: var(--card);
+    color: var(--ink);
+  }
+  .tab:focus-visible{ outline: 2px solid var(--accent); outline-offset:2px; }
+
+  .view{ display:none; flex:1; flex-direction:column; }
+  .view.active{ display:flex; }
+
+  .chips{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:4px;
+    margin-bottom: 16px;
+  }
+  .chip{
+    flex:none;
+    border:1px solid rgba(245,242,233,0.18);
+    background: rgba(245,242,233,0.05);
+    color: var(--chalk);
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor:pointer;
+  }
+  .chip.active{
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+  .chip:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .tally{
+    display:flex;
+    align-items:center;
+    gap:3px;
+    min-height: 22px;
+    margin-bottom: 14px;
+  }
+  .mark{
+    width:3px;
+    height:20px;
+    background: var(--accent);
+    border-radius:2px;
+    position:relative;
+  }
+  .mark.slash::after{
+    content:"";
+    position:absolute;
+    left:-11px;
+    top:-2px;
+    width:3px;
+    height:24px;
+    background: var(--accent);
+    border-radius:2px;
+    transform: rotate(35deg);
+  }
+  .mark-group{ margin-right:8px; display:flex; }
+
+  .card-wrap{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    perspective: 1200px;
+    min-height: 260px;
+  }
+  .card{
+    width:100%;
+    max-width: 360px;
+    height: 260px;
+    position:relative;
+    background:none;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(.2,.8,.2,1);
+  }
+  .card.flipped{ transform: rotateY(180deg); }
+  .card:focus-visible{ outline:2px solid var(--accent); outline-offset:6px; }
+
+  .card-face{
+    position:absolute;
+    inset:0;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--card-edge);
+    backface-visibility: hidden;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+    text-align:center;
+  }
+  .card-back{ transform: rotateY(180deg); }
+
+  .speak-btn{
+    position:absolute;
+    top:14px;
+    right:14px;
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    border: 1px solid var(--card-edge);
+    background: rgba(0,0,0,0.03);
+    font-size:18px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .speak-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .word-en{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 34px;
+    color: var(--ink);
+    line-height:1.15;
+  }
+  .hint{
+    margin-top:14px;
+    font-size:12.5px;
+    color: var(--ink-soft);
+  }
+  .word-de{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 28px;
+    color: var(--ink);
+    position:relative;
+    padding-bottom:10px;
+  }
+  .word-de::after{
+    content:"";
+    position:absolute;
+    bottom:0; left:50%;
+    transform:translateX(-50%);
+    width:56px; height:5px;
+    background: var(--accent);
+    border-radius:3px;
+  }
+  .example{
+    margin-top:16px;
+    font-size:14px;
+    color: var(--ink-soft);
+    line-height:1.5;
+    font-style:italic;
+  }
+
+  .answer-buttons{
+    display:flex;
+    gap:10px;
+    margin-top:18px;
+  }
+  .btn{
+    flex:1;
+    border:none;
+    border-radius: 14px;
+    padding: 14px 10px;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:14.5px;
+    cursor:pointer;
+  }
+  .btn:focus-visible{ outline:2px solid var(--chalk); outline-offset:2px; }
+  .btn-bad{ background: var(--bad); color: var(--bad-ink); }
+  .btn-good{ background: var(--good); color: var(--good-ink); }
+  .btn-accent{ background: var(--accent); color: var(--accent-ink); width:100%; margin-top:14px; }
+
+  .session-done{
+    text-align:center;
+    padding: 30px 10px;
+  }
+  .session-done p:first-child{
+    font-family:'Fraunces', serif;
+    font-size:24px;
+    font-weight:600;
+    margin:0 0 8px;
+  }
+  .session-done p:nth-child(2){
+    color: var(--chalk-soft);
+    font-size:14px;
+    margin:0;
+  }
+
+  .placeholder{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color: var(--chalk-soft);
+    gap:8px;
+    padding: 40px 20px;
+  }
+  .placeholder-title{
+    font-family:'Fraunces', serif;
+    font-size:20px;
+    color: var(--chalk);
+    font-weight:600;
+  }
+
+  .login-screen{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    gap: 22px;
+    padding: 40px 20px;
+  }
+  .login-card{
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--card-edge);
+    padding: 36px 26px;
+    width:100%;
+    max-width: 340px;
+  }
+  .login-card p{
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin: 10px 0 24px;
+    line-height:1.5;
+  }
+  .google-btn{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    background: var(--ink);
+    color: var(--chalk);
+    border:none;
+    border-radius: 14px;
+    padding: 14px 10px;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:14.5px;
+    cursor:pointer;
+  }
+  .google-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .login-error{
+    color: var(--bad);
+    font-size:13px;
+    margin-top:14px;
+    min-height:16px;
+  }
+  .user-pill{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background: rgba(245,242,233,0.08);
+    border: 1px solid rgba(245,242,233,0.14);
+    border-radius: 999px;
+    padding: 5px 10px 5px 5px;
+    cursor:pointer;
+  }
+  .user-avatar{
+    width:24px; height:24px;
+    border-radius:50%;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size:11px;
+    font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .user-pill span{ font-size:12px; color: var(--chalk); font-weight:600; }
+  #appShell{ display:none; flex:1; flex-direction:column; }
+  #appShell.visible{ display:flex; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <p class="brand-name" style="font-size:28px;">Sprach<span>wurm</span></p>
+      <p>Wort für Wort vorwärts. Melde dich an, damit dein eigener Lernstand gespeichert wird.</p>
+      <button class="google-btn" id="googleLoginBtn" type="button">
+        <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.5 29.6 3.5 24 3.5 12.7 3.5 3.5 12.7 3.5 24S12.7 44.5 24 44.5 44.5 35.3 44.5 24c0-1.2-.1-2.4-.3-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 6.5 29.6 4.5 24 4.5c-8 0-14.8 4.6-18.2 11.3z"/><path fill="#4CAF50" d="M24 44.5c5.5 0 10.4-1.9 14.3-5.1l-6.6-5.4c-2 1.4-4.7 2.3-7.7 2.3-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.2 39.9 16 44.5 24 44.5z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.5l6.6 5.4C41.5 36.1 44.5 30.6 44.5 24c0-1.2-.1-2.4-.3-3.5z"/></svg>
+        Mit Google anmelden
+      </button>
+      <p class="login-error" id="loginError"></p>
+    </div>
+  </div>
+
+  <div id="appShell">
+  <header class="topbar">
+    <div class="brand">
+      <p class="brand-name">Sprach<span>wurm</span></p>
+      <p class="brand-tag">Jeden Tag ein Stück näher</p>
+    </div>
+    <div class="stats">
+      <span class="stat-pill" id="streakDisplay">🔥 1 Tag</span>
+      <span class="stat-pill" id="learnedDisplay">0 Wörter</span>
+      <button class="user-pill" id="userPill" type="button" title="Abmelden">
+        <span class="user-avatar" id="userAvatar">?</span>
+        <span id="userName">…</span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Lernbereiche">
+    <button class="tab active" data-tab="vocab" role="tab" aria-selected="true">Wortschatz</button>
+    <button class="tab" data-tab="grammar" role="tab" aria-selected="false">Grammatik</button>
+    <button class="tab" data-tab="talk" role="tab" aria-selected="false">Gespräche</button>
+  </nav>
+
+  <main style="flex:1; display:flex; flex-direction:column;">
+
+    <section id="vocabView" class="view active">
+      <div class="chips" id="chipRow"></div>
+      <div class="tally" id="tally" aria-label="Richtig beantwortete Karten in dieser Runde"></div>
+
+      <div class="card-wrap">
+        <button class="card" id="card" aria-live="polite">
+          <div class="card-face card-front">
+            <button class="speak-btn" id="speakBtn" type="button" aria-label="Aussprache anhören">🔊</button>
+            <div class="word-en" id="wordEn">word</div>
+            <div class="hint">Tippen zum Übersetzen</div>
+          </div>
+          <div class="card-face card-back">
+            <div class="word-de" id="wordDe">Wort</div>
+            <div class="example" id="example">Beispielsatz.</div>
+          </div>
+        </button>
+      </div>
+
+      <div class="answer-buttons" id="answerButtons" hidden>
+        <button class="btn btn-bad" id="btnAgain" type="button">✗ Nochmal üben</button>
+        <button class="btn btn-good" id="btnKnew" type="button">✓ Wusste ich</button>
+      </div>
+
+      <div class="session-done" id="sessionDone" hidden>
+        <p>Runde geschafft! 🎉</p>
+        <p id="sessionStats"></p>
+        <button class="btn btn-accent" id="restartBtn" type="button">Neue Runde</button>
+      </div>
+    </section>
+
+    <section id="grammarView" class="view">
+      <div class="placeholder">
+        <div class="placeholder-title">Grammatik</div>
+        <p>Einfache Erklärungen mit Alltagsbeispielen folgen hier bald.</p>
+      </div>
+    </section>
+
+    <section id="talkView" class="view">
+      <div class="placeholder">
+        <div class="placeholder-title">Gespräche</div>
+        <p>Kurze Alltagsdialoge zum Anhören und Nachsprechen folgen hier bald.</p>
+      </div>
+    </section>
+
+  </main>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+// TODO: Ersetze diese Werte mit deiner eigenen Firebase-Projektkonfiguration.
+// Firebase Console -> Projekteinstellungen -> "Web-App hinzufügen" -> Config kopieren.
+// Dort auch aktivieren: Authentication -> Sign-in method -> Google
+// und: Firestore Database -> Datenbank erstellen (im "Testmodus" zum Start reicht das)
+const firebaseConfig = {
+  apiKey: "DEIN_API_KEY",
+  authDomain: "DEIN_PROJEKT.firebaseapp.com",
+  projectId: "DEIN_PROJEKT",
+  storageBucket: "DEIN_PROJEKT.appspot.com",
+  messagingSenderId: "DEINE_SENDER_ID",
+  appId: "DEINE_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+window.__sprachwurmAuth = { auth, db, doc, getDoc, setDoc, provider, signInWithPopup, signOut, onAuthStateChanged };
+</script>
+
+<script>
+(function(){
+
+  var CATEGORIES = [
+    { id: "alltag", label: "Alltag" },
+    { id: "essen", label: "Essen" },
+    { id: "familie", label: "Familie" },
+    { id: "unterwegs", label: "Unterwegs" }
+  ];
+
+  var WORDS = [
+    { id:"a1", cat:"alltag", en:"good morning", de:"guten Morgen", ex:"Good morning, how are you?" },
+    { id:"a2", cat:"alltag", en:"please", de:"bitte", ex:"Can you help me, please?" },
+    { id:"a3", cat:"alltag", en:"thank you", de:"danke", ex:"Thank you very much." },
+    { id:"a4", cat:"alltag", en:"excuse me", de:"entschuldigen Sie", ex:"Excuse me, where is the bank?" },
+    { id:"a5", cat:"alltag", en:"see you later", de:"bis später", ex:"See you later, have a nice day." },
+    { id:"e1", cat:"essen", en:"bread", de:"Brot", ex:"I would like some bread." },
+    { id:"e2", cat:"essen", en:"water", de:"Wasser", ex:"Can I have a glass of water?" },
+    { id:"e3", cat:"essen", en:"apple", de:"Apfel", ex:"This apple is very sweet." },
+    { id:"e4", cat:"essen", en:"coffee", de:"Kaffee", ex:"I drink coffee every morning." },
+    { id:"e5", cat:"essen", en:"the bill, please", de:"die Rechnung, bitte", ex:"Excuse me, the bill, please." },
+    { id:"f1", cat:"familie", en:"daughter", de:"Tochter", ex:"My daughter lives in Vienna." },
+    { id:"f2", cat:"familie", en:"son", de:"Sohn", ex:"Our son is learning English too." },
+    { id:"f3", cat:"familie", en:"grandchild", de:"Enkelkind", ex:"We are visiting our grandchild." },
+    { id:"f4", cat:"familie", en:"birthday", de:"Geburtstag", ex:"Happy birthday to you!" },
+    { id:"u1", cat:"unterwegs", en:"train station", de:"Bahnhof", ex:"Where is the train station?" },
+    { id:"u2", cat:"unterwegs", en:"ticket", de:"Fahrkarte", ex:"One ticket to Vienna, please." },
+    { id:"u3", cat:"unterwegs", en:"left", de:"links", ex:"Turn left at the corner." },
+    { id:"u4", cat:"unterwegs", en:"right", de:"rechts", ex:"The hotel is on the right." }
+  ];
+
+  var state = {
+    category: "alle",
+    queue: [],
+    current: null,
+    flipped: false,
+    sessionCorrect: 0,
+    uid: null,
+    progress: { streak: 1, lastDate: null, learnedIds: [] }
+  };
+
+  function todayStr(){ return new Date().toISOString().slice(0,10); }
+  function yesterdayStr(){
+    var d = new Date();
+    d.setDate(d.getDate()-1);
+    return d.toISOString().slice(0,10);
+  }
+
+  async function loadProgress(uid){
+    var fb = window.__sprachwurmAuth;
+    try{
+      var ref = fb.doc(fb.db, "users", uid);
+      var snap = await fb.getDoc(ref);
+      if(snap.exists()){
+        state.progress = Object.assign(state.progress, snap.data());
+      } else {
+        await fb.setDoc(ref, state.progress);
+      }
+    }catch(e){
+      console.error("Laden des Lernstands fehlgeschlagen", e);
+    }
+    renderStats();
+  }
+
+  async function saveProgress(){
+    if(!state.uid) return;
+    var fb = window.__sprachwurmAuth;
+    try{
+      await fb.setDoc(fb.doc(fb.db, "users", state.uid), state.progress, { merge: true });
+    }catch(e){
+      console.error("Speichern fehlgeschlagen", e);
+    }
+  }
+
+  function markAnswerToday(){
+    var today = todayStr();
+    if(state.progress.lastDate === today) return;
+    if(state.progress.lastDate === yesterdayStr()){
+      state.progress.streak += 1;
+    } else {
+      state.progress.streak = 1;
+    }
+    state.progress.lastDate = today;
+  }
+
+  function renderStats(){
+    document.getElementById("streakDisplay").textContent = "🔥 " + state.progress.streak + " Tag" + (state.progress.streak === 1 ? "" : "e");
+    document.getElementById("learnedDisplay").textContent = state.progress.learnedIds.length + " Wörter";
+  }
+
+  function renderChips(){
+    var row = document.getElementById("chipRow");
+    row.innerHTML = "";
+    var all = document.createElement("button");
+    all.className = "chip" + (state.category === "alle" ? " active" : "");
+    all.textContent = "Alle";
+    all.type = "button";
+    all.addEventListener("click", function(){ selectCategory("alle"); });
+    row.appendChild(all);
+
+    CATEGORIES.forEach(function(c){
+      var btn = document.createElement("button");
+      btn.className = "chip" + (state.category === c.id ? " active" : "");
+      btn.textContent = c.label;
+      btn.type = "button";
+      btn.addEventListener("click", function(){ selectCategory(c.id); });
+      row.appendChild(btn);
+    });
+  }
+
+  function selectCategory(catId){
+    state.category = catId;
+    renderChips();
+    startSession();
+  }
+
+  function wordsForCategory(){
+    if(state.category === "alle") return WORDS.slice();
+    return WORDS.filter(function(w){ return w.cat === state.category; });
+  }
+
+  function shuffle(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i+1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function startSession(){
+    state.queue = shuffle(wordsForCategory());
+    state.sessionCorrect = 0;
+    document.getElementById("sessionDone").hidden = true;
+    document.getElementById("card").parentElement.style.display = "flex";
+    document.getElementById("answerButtons").hidden = false;
+    renderTally();
+    nextCard();
+  }
+
+  function renderTally(){
+    var tally = document.getElementById("tally");
+    tally.innerHTML = "";
+    var groups = Math.ceil(state.sessionCorrect / 5) || (state.sessionCorrect === 0 ? 0 : 1);
+    var remaining = state.sessionCorrect;
+    while(remaining > 0){
+      var group = document.createElement("div");
+      group.className = "mark-group";
+      var count = Math.min(5, remaining);
+      for(var i = 0; i < count; i++){
+        var mark = document.createElement("div");
+        mark.className = "mark" + (i === 4 ? " slash" : "");
+        group.appendChild(mark);
+      }
+      tally.appendChild(group);
+      remaining -= count;
+    }
+  }
+
+  function nextCard(){
+    var card = document.getElementById("card");
+    card.classList.remove("flipped");
+    state.flipped = false;
+
+    if(state.queue.length === 0){
+      document.getElementById("card").parentElement.style.display = "none";
+      document.getElementById("answerButtons").hidden = true;
+      document.getElementById("sessionDone").hidden = false;
+      document.getElementById("sessionStats").textContent =
+        state.sessionCorrect + " von " + wordsForCategory().length + " Wörtern gewusst.";
+      return;
+    }
+
+    state.current = state.queue.shift();
+    document.getElementById("wordEn").textContent = state.current.en;
+    document.getElementById("wordDe").textContent = state.current.de;
+    document.getElementById("example").textContent = state.current.ex;
+  }
+
+  function speak(text){
+    if(!("speechSynthesis" in window)) return;
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "en-US";
+    utter.rate = 0.85;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utter);
+  }
+
+  document.getElementById("card").addEventListener("click", function(e){
+    if(e.target.closest("#speakBtn")) return;
+    state.flipped = !state.flipped;
+    this.classList.toggle("flipped", state.flipped);
+  });
+
+  document.getElementById("speakBtn").addEventListener("click", function(e){
+    e.stopPropagation();
+    if(state.current) speak(state.current.en);
+  });
+
+  document.getElementById("btnKnew").addEventListener("click", function(){
+    if(!state.current) return;
+    state.sessionCorrect += 1;
+    if(state.progress.learnedIds.indexOf(state.current.id) === -1){
+      state.progress.learnedIds.push(state.current.id);
+    }
+    markAnswerToday();
+    renderTally();
+    renderStats();
+    saveProgress();
+    nextCard();
+  });
+
+  document.getElementById("btnAgain").addEventListener("click", function(){
+    if(!state.current) return;
+    var insertAt = Math.min(state.queue.length, 3);
+    state.queue.splice(insertAt, 0, state.current);
+    nextCard();
+  });
+
+  document.getElementById("restartBtn").addEventListener("click", startSession);
+
+  document.querySelectorAll(".tab").forEach(function(tab){
+    tab.addEventListener("click", function(){
+      document.querySelectorAll(".tab").forEach(function(t){
+        t.classList.remove("active");
+        t.setAttribute("aria-selected","false");
+      });
+      this.classList.add("active");
+      this.setAttribute("aria-selected","true");
+      document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
+      document.getElementById(this.dataset.tab + "View").classList.add("active");
+    });
+  });
+
+  function initials(name){
+    if(!name) return "?";
+    var parts = name.trim().split(" ");
+    return (parts[0][0] + (parts[1] ? parts[1][0] : "")).toUpperCase();
+  }
+
+  function showLoggedOut(){
+    document.getElementById("loginScreen").style.display = "flex";
+    document.getElementById("appShell").classList.remove("visible");
+  }
+
+  function showLoggedIn(user){
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("appShell").classList.add("visible");
+    document.getElementById("userAvatar").textContent = initials(user.displayName);
+    document.getElementById("userName").textContent = (user.displayName || "").split(" ")[0] || "Ich";
+  }
+
+  document.getElementById("googleLoginBtn").addEventListener("click", async function(){
+    var fb = window.__sprachwurmAuth;
+    var errorEl = document.getElementById("loginError");
+    errorEl.textContent = "";
+    try{
+      await fb.signInWithPopup(fb.auth, fb.provider);
+    }catch(e){
+      errorEl.textContent = "Anmeldung fehlgeschlagen. Bitte nochmal versuchen.";
+      console.error(e);
+    }
+  });
+
+  document.getElementById("userPill").addEventListener("click", async function(){
+    var fb = window.__sprachwurmAuth;
+    await fb.signOut(fb.auth);
+  });
+
+  renderChips();
+
+  window.__sprachwurmAuth.onAuthStateChanged(window.__sprachwurmAuth.auth, async function(user){
+    if(user){
+      state.uid = user.uid;
+      showLoggedIn(user);
+      await loadProgress(user.uid);
+      startSession();
+    } else {
+      state.uid = null;
+      showLoggedOut();
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
