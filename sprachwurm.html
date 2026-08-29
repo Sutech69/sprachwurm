@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Sprachwurm – Englisch lernen</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
@@ -48,16 +48,27 @@
     width:100%;
     max-width: 460px;
     min-height: 100vh;
-    padding: 20px 18px 32px;
+    min-height: 100dvh;
+    padding: max(20px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
     display:flex;
     flex-direction:column;
   }
 
+  @media (max-width: 360px){
+    .app{ padding-left:12px; padding-right:12px; }
+  }
+
   .topbar{
     display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
+    flex-direction:column;
+    gap:12px;
     margin-bottom: 18px;
+  }
+  .topbar-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
   }
   .brand{
     display:flex;
@@ -67,7 +78,7 @@
   .brand-name{
     font-family:'Fraunces', serif;
     font-weight:600;
-    font-size: 24px;
+    font-size: 26px;
     letter-spacing:-0.01em;
     margin:0;
   }
@@ -79,13 +90,14 @@
   }
   .stats{
     display:flex;
-    gap:10px;
+    gap:8px;
+    align-items:center;
   }
   .stat-pill{
     background: rgba(245,242,233,0.08);
     border: 1px solid rgba(245,242,233,0.14);
     border-radius: 999px;
-    padding: 6px 11px;
+    padding: 7px 12px;
     font-size: 12.5px;
     font-weight:600;
     color: var(--chalk);
@@ -182,22 +194,20 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    perspective: 1200px;
-    min-height: 260px;
+    min-height: 220px;
+    padding: 8px 0;
   }
   .card{
     width:100%;
     max-width: 360px;
-    height: 260px;
+    height: min(260px, 42vh);
+    min-height: 200px;
     position:relative;
     background:none;
     border:none;
     padding:0;
     cursor:pointer;
-    transform-style: preserve-3d;
-    transition: transform 0.5s cubic-bezier(.2,.8,.2,1);
   }
-  .card.flipped{ transform: rotateY(180deg); }
   .card:focus-visible{ outline:2px solid var(--accent); outline-offset:6px; }
 
   .card-face{
@@ -206,15 +216,18 @@
     background: var(--card);
     border-radius: var(--radius);
     border: 1px solid var(--card-edge);
-    backface-visibility: hidden;
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:center;
     padding: 24px;
     text-align:center;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity 0.25s ease;
   }
-  .card-back{ transform: rotateY(180deg); }
+  .card:not(.flipped) .card-front{ opacity:1; pointer-events:auto; }
+  .card.flipped .card-back{ opacity:1; pointer-events:auto; }
 
   .speak-btn{
     position:absolute;
@@ -236,7 +249,7 @@
   .word-en{
     font-family:'Fraunces', serif;
     font-weight:600;
-    font-size: 34px;
+    font-size: clamp(24px, 7vw, 34px);
     color: var(--ink);
     line-height:1.15;
   }
@@ -248,7 +261,7 @@
   .word-de{
     font-family:'Fraunces', serif;
     font-weight:600;
-    font-size: 28px;
+    font-size: clamp(20px, 6vw, 28px);
     color: var(--ink);
     position:relative;
     padding-bottom:10px;
@@ -381,8 +394,10 @@
     background: rgba(245,242,233,0.08);
     border: 1px solid rgba(245,242,233,0.14);
     border-radius: 999px;
-    padding: 5px 10px 5px 5px;
+    padding: 5px 12px 5px 5px;
     cursor:pointer;
+    min-height:34px;
+    flex:none;
   }
   .user-avatar{
     width:24px; height:24px;
@@ -415,17 +430,21 @@
 
   <div id="appShell">
   <header class="topbar">
-    <div class="brand">
-      <p class="brand-name">Sprach<span>Wurm</span></p>
-      <p class="brand-tag">Jeden Tag ein Stück näher</p>
-    </div>
-    <div class="stats">
-      <span class="stat-pill" id="streakDisplay">🔥 1 Tag</span>
-      <span class="stat-pill" id="learnedDisplay">0 Wörter</span>
+    <div class="topbar-row">
+      <div class="brand">
+        <p class="brand-name">Sprach<span>Wurm</span></p>
+        <p class="brand-tag">Jeden Tag ein Stück näher</p>
+      </div>
       <button class="user-pill" id="userPill" type="button" title="Abmelden">
         <span class="user-avatar" id="userAvatar">?</span>
         <span id="userName">…</span>
       </button>
+    </div>
+    <div class="topbar-row">
+      <div class="stats">
+        <span class="stat-pill" id="streakDisplay">🔥 1 Tag</span>
+        <span class="stat-pill" id="learnedDisplay">0 Wörter</span>
+      </div>
     </div>
   </header>
 
